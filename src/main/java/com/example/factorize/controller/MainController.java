@@ -1,4 +1,4 @@
-package com.example.factorize;
+package com.example.factorize.controller;
 
 import com.example.factorize.domain.Numbers;
 import com.example.factorize.function.Factorize;
@@ -15,28 +15,24 @@ import java.util.List;
 
 
 @Controller
-public class GreetingController {
+public class MainController {
     private final Factorize factorize = new Factorize(BigInteger.ZERO);
     @Autowired
     private NumberRepo numberRepo;
 
-    @GetMapping("/greeting")
-    public String greeting(
-            @RequestParam(name = "name", required = false, defaultValue = "World") String name,
-            Model model
-    ) {
-        model.addAttribute("name", name);
+    @GetMapping("/")
+    public String greeting(Model model) {
         return "greeting";
     }
 
-    @GetMapping
+    @GetMapping("/main")
     public String main(Model model) {
         Iterable<Numbers> numbers = numberRepo.findAll();
         model.addAttribute("numbers", numbers);
         return "main";
     }
 
-    @PostMapping
+    @PostMapping("/main")
     public String factorization(
             @RequestParam String number,
             Model model
