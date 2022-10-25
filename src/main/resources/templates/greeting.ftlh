@@ -1,6 +1,6 @@
 <#import "parts/common.ftlh" as c>
 
 <@c.page>
-<div>Hello, user</div>
-<a href="/main">Main page</a>
+    <h5>Web project Factorize</h5>
+    <div>Created by Olenka Dashynych</div>
 </@c.page>
