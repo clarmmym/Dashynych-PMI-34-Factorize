@@ -28,7 +28,13 @@
         <b>{{id}}</b>
         <span>{{bigInteger}}</span>
         <i>{{factNumber}}</i>
+        {{#authorName}}
+            <strong>{{authorName}}</strong>
+        {{/authorName}}
     </div>
 {{/numbers}}
+{{#users}}
+    <strong>{{users}}</strong>
+{{/users}}
 </body>
 </html>

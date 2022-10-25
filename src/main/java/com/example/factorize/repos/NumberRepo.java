@@ -6,5 +6,5 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.List;
 
 public interface NumberRepo extends CrudRepository<Numbers, Long> {
-    List<Numbers> findByBigInteger(String bigInteger);
+    List<Numbers> findBybigInteger(String bigInteger);
 }
