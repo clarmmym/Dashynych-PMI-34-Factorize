@@ -1,41 +1,58 @@
 <#import "parts/common.ftlh" as c>
-<#import "parts/login.ftlh" as l>
 
 <@c.page>
-    <div>
-        <@l.logout />
-        <span><a href="/user">User list</a></span>
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <form method="get" action="/main" class="form-inline">
+                <input type="text" name="filter" class="form-control" value="${filter!}"
+                       placeholder="Factorize new number">
+                <button type="submit" class="btn btn-primary ml-2">Factorize</button>
+            </form>
+        </div>
     </div>
-    <div>
-        <form method="post">
-            <input type="text" name="number" placeholder="Enter number"/>
-            <input type="hidden" name="_csrf" value="${_csrf.token}"/>
-            <button type="submit">Factorize</button>
-        </form>
+    <a class="btn btn-primary" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false"
+       aria-controls="collapseExample">
+        Search number
+    </a>
+    <div class="collapse" id="collapseExample">
+        <div class="form-group mt-3">
+            <form method="post">
+                <div class="form-group">
+                    <input type="text" class="form-control" name="number" placeholder="Enter number"/>
+                </div>
+                <div class="form-group">
+                    <input type="hidden" class="form-control" name="_csrf" value="${_csrf.token}"/>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Factorize</button>
+                </div>
+            </form>
+        </div>
     </div>
-    <div>List numbers</div>
-    <form method="get" action="/main">
-        <input type="text" name="filter" value="${filter!}">
-        <button type="submit">Find</button>
-    </form>
+
 
     <#if message??>
         <strong>${message}</strong>
     </#if>
 
-    <#if numbers??>
-        <#list numbers as number>
-            <div>
-                <b>${number.id}</b>
-                <span>${number.bigInteger}</span>
-                <i>${number.factNumber}</i>
-                <#list number.authorName as us >
-                    <strong>${us}</strong>
-                </#list>
-            </div>
-        <#else> No numbers
-        </#list>
-    </#if>
+    <div class="card-columns">
+        <#if numbers??>
+            <#list numbers as number>
+                <div class="card my-3">
+                    <div class="m-2">
+                        <span>${number.bigInteger}</span>
+                    </div>
+                    <div class="card-footer text-muted">
+                        <#list number.authorName as us >
+                            <i>${number.factNumber}</i>
+<#--                            <strong>${us}</strong>-->
+                        </#list>
+                    </div>
+                </div>
+            <#else> No numbers
+            </#list>
+        </#if>
+    </div>
     <div>List user factorizations</div>
     <#if users??>
         <#list users as user>
