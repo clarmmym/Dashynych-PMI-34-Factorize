@@ -5,6 +5,7 @@ import com.example.factorize.domain.User;
 import com.example.factorize.function.Factorize;
 import com.example.factorize.repos.NumberRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,7 +13,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.io.IOException;
 import java.math.BigInteger;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.List;
 
 
@@ -21,6 +28,11 @@ public class MainController {
     private final Factorize factorize = new Factorize(BigInteger.ZERO);
     @Autowired
     private NumberRepo numberRepo;
+
+    private final HttpClient client = HttpClient.newHttpClient();
+
+    @Autowired
+    private Environment env;
 
     @GetMapping("/")
     public String greeting(Model model) {
@@ -53,13 +65,6 @@ public class MainController {
     ) {
         model.addAttribute("users", user.getFactorizeNumbers());
 
-        BigInteger integer;
-        try {
-            integer = new BigInteger(number);
-        } catch (Exception e) {
-            model.addAttribute("message", "Enter valid number");
-            return "main";
-        }
         List<Numbers> nbs = numberRepo.findBybigInteger(number);
         model.addAttribute("message", "");
 
@@ -74,9 +79,33 @@ public class MainController {
             return "main";
         }
 
-        factorize.changeNumber(integer);
-        factorize.primeFactors();
-        Numbers nb = new Numbers(number, factorize.getResultString(), user);
+        HttpRequest request = null;
+        try {
+            request = HttpRequest.newBuilder()
+                    .uri(new URI("http://localhost:" + env.getProperty("fact_port") + "/?number=" + number))
+                    .POST(HttpRequest.BodyPublishers.ofString(""))
+                    .build();
+        } catch (URISyntaxException e) {
+            System.out.println("Cannot create request. Massage: " + e.getMessage());
+            System.exit(0);
+        }
+
+        HttpResponse<String> response = null;
+        try {
+            response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException | InterruptedException e) {
+            System.out.println("Cannot send a request. Message: " + e.getMessage());
+            return "main";
+
+        }
+
+        if (response.statusCode() >= 300 || response.statusCode() < 200) {
+            System.out.println("Request error. Status code: " + response.statusCode() + " " + response.body());
+            return "main";
+
+        }
+
+        Numbers nb = new Numbers(number, response.body(), user);
 
         numberRepo.save(nb);
 

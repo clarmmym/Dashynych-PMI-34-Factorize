@@ -66,9 +66,10 @@ public class User implements UserDetails {
         return hashSet;
     }
 
-    public boolean isAdmin(){
+    public boolean isAdmin() {
         return roles.contains(Role.ADMIN);
     }
+
     public void setUserNumbers(Set<Numbers> userNumbers) {
         this.userNumbers = userNumbers;
     }
