@@ -1,9 +1,11 @@
 package com.example.factorize.controller;
 
 import com.example.factorize.domain.Numbers;
+import com.example.factorize.domain.User;
 import com.example.factorize.function.Factorize;
 import com.example.factorize.repos.NumberRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,6 +36,7 @@ public class MainController {
 
     @PostMapping("/main")
     public String factorization(
+            @AuthenticationPrincipal User user,
             @RequestParam String number,
             Model model
     ) {
@@ -44,19 +47,21 @@ public class MainController {
             model.addAttribute("message", "Enter valid number");
             return "main";
         }
-        List<Numbers> nbs = numberRepo.findByBigInteger(number);
+        List<Numbers> nbs = numberRepo.findBybigInteger(number);
         model.addAttribute("message", "");
 
-        if (nbs != null) {
+        if (nbs.size() != 0) {
             model.addAttribute("numbers", nbs.get(0));
             return "main";
         }
 
         factorize.changeNumber(integer);
         factorize.primeFactors();
-        Numbers nb = new Numbers(number, factorize.getResultString());
+        Numbers nb = new Numbers(number, factorize.getResultString(), user);
 
         numberRepo.save(nb);
+        model.addAttribute("users", List.of(user.getFactorizeNumbers()));
+
 
         Iterable<Numbers> numbers = numberRepo.findAll();
         model.addAttribute("numbers", numbers);
