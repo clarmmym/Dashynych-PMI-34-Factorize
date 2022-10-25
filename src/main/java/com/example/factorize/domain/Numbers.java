@@ -67,7 +67,7 @@ public class Numbers {
         return listUser;
     }
 
-    public void setListUser(Set<User> listUser) {
-        this.listUser = listUser;
+    public void setListUser(User user) {
+        listUser.add(user);
     }
 }

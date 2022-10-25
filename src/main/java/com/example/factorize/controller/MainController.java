@@ -28,8 +28,19 @@ public class MainController {
     }
 
     @GetMapping("/main")
-    public String main(Model model) {
+    public String main(@RequestParam(required = false, defaultValue = "") String filter,
+                       Model model
+    ) {
         Iterable<Numbers> numbers = numberRepo.findAll();
+        model.addAttribute("filter", filter);
+
+        for (Numbers n : numberRepo.findAll()) {
+            if (n.getBigInteger().equals(filter)) {
+                model.addAttribute("numbers", List.of(n));
+
+                return "main";
+            }
+        }
         model.addAttribute("numbers", numbers);
         return "main";
     }
@@ -40,6 +51,8 @@ public class MainController {
             @RequestParam String number,
             Model model
     ) {
+        model.addAttribute("users", user.getFactorizeNumbers());
+
         BigInteger integer;
         try {
             integer = new BigInteger(number);
@@ -51,7 +64,13 @@ public class MainController {
         model.addAttribute("message", "");
 
         if (nbs.size() != 0) {
-            model.addAttribute("numbers", nbs.get(0));
+
+            Numbers nbm = numberRepo.findBybigInteger(number).get(0);
+            nbm.setListUser(user);
+            numberRepo.save(nbm);
+
+            model.addAttribute("numbers", List.of(nbm));
+
             return "main";
         }
 
@@ -60,28 +79,9 @@ public class MainController {
         Numbers nb = new Numbers(number, factorize.getResultString(), user);
 
         numberRepo.save(nb);
-        model.addAttribute("users", List.of(user.getFactorizeNumbers()));
-
 
         Iterable<Numbers> numbers = numberRepo.findAll();
         model.addAttribute("numbers", numbers);
-
-        return "main";
-    }
-
-    @PostMapping("filter")
-    public String filter(
-            @RequestParam(defaultValue = "") String filter,
-            Model model
-    ) {
-        Numbers number = null;
-        for (Numbers n : numberRepo.findAll()) {
-            if (n.getBigInteger().equals(filter)) {
-                number = n;
-                break;
-            }
-        }
-        model.addAttribute("numbers", number);
 
         return "main";
     }
