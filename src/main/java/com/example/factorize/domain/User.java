@@ -4,9 +4,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "usr")
@@ -55,15 +53,15 @@ public class User implements UserDetails {
         return userNumbers;
     }
 
-    public Set<String> getFactorizeNumbers() {
-        Set<String> hashSet = new HashSet<>();
+    public Map<String, String> getFactorizeNumbers() {
+        Map<String, String> hashMap = new HashMap<>();
         if (userNumbers.size() != 0) {
-            userNumbers.forEach(n -> hashSet.add(n.getBigInteger() + " " + n.getFactNumber()));
+            userNumbers.forEach(n -> hashMap.put(n.getBigInteger(), n.getFactNumber()));
         } else {
-            hashSet.add("none");
+            hashMap.put("", "");
         }
 
-        return hashSet;
+        return hashMap;
     }
 
     public boolean isAdmin() {

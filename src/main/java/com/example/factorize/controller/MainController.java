@@ -63,7 +63,6 @@ public class MainController {
             @RequestParam String number,
             Model model
     ) {
-        model.addAttribute("users", user.getFactorizeNumbers());
 
         List<Numbers> nbs = numberRepo.findBybigInteger(number);
         model.addAttribute("message", "");
@@ -90,7 +89,7 @@ public class MainController {
             System.exit(0);
         }
 
-        HttpResponse<String> response = null;
+        HttpResponse<String> response;
         try {
             response = client.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (IOException | InterruptedException e) {
@@ -105,13 +104,49 @@ public class MainController {
 
         }
 
+        if (response.body().equals("")) {
+            model.addAttribute("message", "Something happened. Try again");
+            return "main";
+        }
+
         Numbers nb = new Numbers(number, response.body(), user);
 
         numberRepo.save(nb);
 
-        Iterable<Numbers> numbers = numberRepo.findAll();
-        model.addAttribute("numbers", numbers);
+        model.addAttribute("result", nb);
+
+
+//        request = null;
+//        String status;
+//
+//        try {
+//            request = HttpRequest.newBuilder()
+//                    .uri(new URI("http://localhost:" + env.getProperty("fact_port") + "/status?number=" + number))
+//                    .GET()
+//                    .build();
+//        } catch (URISyntaxException e) {
+//            System.out.println("Cannot create request. Massage: " + e.getMessage());
+//        }
+//
+//        response = null;
+//        try {
+//            response = client.send(request, HttpResponse.BodyHandlers.ofString());
+//        } catch (IOException | InterruptedException e) {
+//            System.out.println("Cannot send a request. Message: " + e.getMessage());
+//        }
+//
+//        assert response != null;
+//        status = response.body();
+//        model.addAttribute("status", status);
+
 
         return "main";
+    }
+
+    @GetMapping("/numberList")
+    public String userList(@AuthenticationPrincipal User user, Model model) {
+        model.addAttribute("usersList", user.getFactorizeNumbers());
+
+        return "numbersList";
     }
 }
